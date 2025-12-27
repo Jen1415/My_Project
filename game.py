@@ -8,41 +8,34 @@ def guess():
         count = 1
         while (len(userInput) != 5) or not(userInput.isalpha()):
                 if count > 1:
-                        if len(userInput) != 5:
-                                print(RED + "Error: " + RESET + "Not a five letters word.")
                         if not(userInput.isalpha()):
-                                print(RED + "Error: " + RESET + "A word should not contains digit.")
+                                print(RED + "Error: " + RESET + "A word should only contains letters.")
+                        elif len(userInput) != 5:
+                                print(RED + "Error: " + RESET + "Not a five letters word.")
                 userInput = input("Guess a five letters word: ")
                 count +=1
         return userInput
 
 
-def compare(ans, ui):
-        while True:
-                ui_letters = [letter for letter in ui]
-                ans_letters = [letter for letter in ans]
-                if ui_letters != ans_letters:
-                        # when not the true answer
-                        for letter in ui_letters:
-                                # there are some identical letters
-                                if letter in ans_letters:
-                                        # first possible: misplaced
-                                        if ui_letters.index(letter) != ans_letters.index(letter):
-                                                colour = YELLOW
+def print_colour(LETTER, COLOUR):
+        print(COLOUR + LETTER + RESET, end = '')
 
-                                        # second possible: correct place        
-                                        else:
-                                                colour = GREEN
-                                # no identical letters at all
-                                else:
-                                        colour = RED
-                                print(colour + letter + RESET, end = '')
-                        print()
+
+def compare(ans, ug):
+        from collections import Counter
+
+        ans_counter = Counter(ans)
+
+        for i, letter in enumerate(ug):
+                if letter == ans[i]:
+                        print_colour(letter,GREEN)
+                        ans_counter[letter] -= 1
+                elif (letter in ans_counter) and (ans_counter[letter] > 0):
+                        print_colour(letter,YELLOW)
+                        ans_counter[letter] -= 1
                 else:
-                        print(GREEN + ui + RESET)
-                        return
-                ui = guess()
-                        
+                        print_colour(letter,RED)
+
 
         
 
@@ -58,13 +51,17 @@ def main():
                 words = [lines.rstrip() for lines in w ]
                 
         ans = random.choice(words)
-        userInput = guess()
-
-        compare(ans,userInput)
-
-        print(GREEN + 'Congratulations!' + RESET + 'Your answer is correct!')
-
-
+        for attempts in range(1,6):
+                print(f'Attempts left: {YELLOW + str(6-attempts) + RESET}')
+                userInput = guess()
+                compare(ans,userInput)
+                print()
+                if userInput == ans:
+                        print(f'Congratulations! The answer is {GREEN + ans + RESET}.')
+                        print(f'Attempts took: {YELLOW + str(attempts) + RESET}')
+                        break
+        else:
+                print(f'Unfortunately! The answer is {GREEN + ans + RESET}.')
 
 
 main()
